@@ -1,0 +1,49 @@
+/* Checkbox.module.scss */
+
+.checkbox-wrapper {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+
+  &:checked + .checkbox-box {
+    background-color: #007bff;
+    border-color: #007bff;
+
+    &::after {
+      display: block;
+    }
+  }
+}
+
+.checkbox-box {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  margin-right: 0.5rem;
+  box-sizing: border-box;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 6px;
+    height: 12px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    display: none;
+  }
+}

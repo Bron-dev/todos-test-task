@@ -1,0 +1,7 @@
+@use '@styles/mixins' as *;
+@use '@styles/variables' as *;
+
+.boxContainer {
+  @include flex-center;
+  gap: 8px;
+}

@@ -1,0 +1,54 @@
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  }
+
+  &:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+  }
+
+  &.error {
+    border-color: #dc3545;
+
+    &:focus {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+    }
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+/* Sizes */
+.small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.medium {
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+}
+
+.large {
+  padding: 0.75rem 1rem;
+  font-size: 1.125rem;
+}

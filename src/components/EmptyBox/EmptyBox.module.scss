@@ -1,0 +1,7 @@
+@use '@styles/mixins' as *;
+
+.emptyBox {
+  min-width: 400px;
+  min-height: 400px;
+  @include flex-center;
+}

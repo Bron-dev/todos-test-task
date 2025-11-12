@@ -1,0 +1,7 @@
+@use '@styles/variables' as *;
+
+.container {
+  padding: 8px 4px;
+  border-radius: 16px;
+  background-color: $color-secondary;
+}

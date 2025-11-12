@@ -1,0 +1,6 @@
+@use '@styles/mixins' as *;
+
+.task {
+  @include flex-center;
+  gap: 8px;
+}
