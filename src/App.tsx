@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 
 import {
@@ -24,38 +24,40 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
-  const handleAddBtnClick = (type: CreateOption, title: string) => {
+  const handleAddBtnClick = useCallback((type: CreateOption, title: string) => {
     if (!title.trim()) return;
 
-    if (type === 'column') {
-      setAppState({
-        ...appState,
-        columns: [...appState.columns, createColumn(title, appState.columns.length)],
-      });
-    } else {
-      setAppState({
-        ...appState,
-        tasks: [...appState.tasks, createTask(title, appState.tasks.length)],
-      });
-    }
-  };
+    setAppState((prev) => {
+      if (type === 'column') {
+        return {
+          ...prev,
+          columns: [...prev.columns, createColumn(title, prev.columns.length)],
+        };
+      } else {
+        return {
+          ...prev,
+          tasks: [...prev.tasks, createTask(title, prev.tasks.length)],
+        };
+      }
+    });
+  }, [setAppState]);
 
-  const handleUpdateTask = (updatedTask: Task) => {
+  const handleUpdateTask = useCallback((updatedTask: Task) => {
     setAppState((prev) => {
       const tasks = prev.tasks.map((t) => (t.id === updatedTask.id ? { ...t, ...updatedTask } : t));
       return { ...prev, tasks };
     });
-  };
+  }, [setAppState]);
 
-  const handleDeleteColumn = (columnId: number) => {
+  const handleDeleteColumn = useCallback((columnId: number) => {
     setAppState((prev) => deleteColumn(prev, columnId));
-  };
+  }, [setAppState]);
 
-  const handleDeleteTask = (taskId: number) => {
+  const handleDeleteTask = useCallback((taskId: number) => {
     setAppState((prev) => deleteTask(prev, taskId));
-  };
+  }, [setAppState]);
 
-  const toggleColumnCheckmark = (columnId: number) => {
+  const toggleColumnCheckmark = useCallback((columnId: number) => {
     setAppState((prev) => {
       const updatedColumns = prev.columns.map((col) =>
         col.id === columnId ? { ...col, isMarked: !col.isMarked } : col
@@ -70,34 +72,34 @@ function App() {
 
       return { ...prev, columns: updatedColumns, tasks: updatedTasks };
     });
-  };
+  }, [setAppState]);
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete = useCallback(() => {
     setAppState((prev) => ({
       ...prev,
       tasks: prev.tasks.filter((task) => !task.isMarked),
     }));
-  };
+  }, [setAppState]);
 
-  const handleBulkComplete = () => {
+  const handleBulkComplete = useCallback(() => {
     setAppState((prev) => ({
       ...prev,
       tasks: prev.tasks.map((task) =>
         task.isMarked ? { ...task, isCompleted: true, isMarked: false } : task
       ),
     }));
-  };
+  }, [setAppState]);
 
-  const handleBulkIncomplete = () => {
+  const handleBulkIncomplete = useCallback(() => {
     setAppState((prev) => ({
       ...prev,
       tasks: prev.tasks.map((task) =>
         task.isMarked ? { ...task, isCompleted: false, isMarked: false } : task
       ),
     }));
-  };
+  }, [setAppState]);
 
-  const handleBulkMove = (targetColumnId: string) => {
+  const handleBulkMove = useCallback((targetColumnId: string) => {
     if (!targetColumnId) return;
     const targetId = parseInt(targetColumnId, 10);
     setAppState((prev) => ({
@@ -106,7 +108,11 @@ function App() {
         task.isMarked ? { ...task, columnId: targetId, isMarked: false } : task
       ),
     }));
-  };
+  }, [setAppState]);
+
+  const handleCreateOptionChange = useCallback((value: CreateOption) => {
+    setAppState((prev) => ({ ...prev, createOption: value }));
+  }, [setAppState]);
 
   // --- handle drag logic ---
   useEffect(() => {
@@ -140,33 +146,45 @@ function App() {
     });
 
     return () => cleanup?.();
-  }, []);
+  }, [setAppState]);
 
   const filterType = appState.filter;
 
-  const tasksToShow = appState.tasks.filter((task) => {
-    if (filterType === 'completed' && !task.isCompleted) return false;
-    if (filterType === 'incomplete' && task.isCompleted) return false;
+  const tasksToShow = useMemo(() => {
+    return appState.tasks.filter((task) => {
+      if (filterType === 'completed' && !task.isCompleted) return false;
+      if (filterType === 'incomplete' && task.isCompleted) return false;
 
-    const query = searchValue.trim().toLowerCase();
-    if (!query) return true;
+      const query = searchValue.trim().toLowerCase();
+      if (!query) return true;
 
-    const text = task.text.toLowerCase();
+      const text = task.text.toLowerCase();
 
-    let lastIndex = -1;
-    for (const char of query) {
-      const index = text.indexOf(char, lastIndex + 1);
-      if (index === -1) return false;
-      lastIndex = index;
-    }
+      let lastIndex = -1;
+      for (const char of query) {
+        const index = text.indexOf(char, lastIndex + 1);
+        if (index === -1) return false;
+        lastIndex = index;
+      }
 
-    return true;
-  });
+      return true;
+    });
+  }, [appState.tasks, filterType, searchValue]);
 
-  const unassignedTasks = tasksToShow.filter((t) => !t.columnId);
-  const tasksWithColumn = tasksToShow.filter((t) => !!t.columnId);
-  const isStateEmpty = appState.columns.length === 0 && appState.tasks.length === 0;
-  const selectedTasks = appState.tasks.filter((task) => task.isMarked);
+  const unassignedTasks = useMemo(() => tasksToShow.filter((t) => !t.columnId), [tasksToShow]);
+  const tasksWithColumn = useMemo(() => tasksToShow.filter((t) => !!t.columnId), [tasksToShow]);
+  const isStateEmpty = useMemo(
+    () => appState.columns.length === 0 && appState.tasks.length === 0,
+    [appState.columns.length, appState.tasks.length]
+  );
+  const selectedTasks = useMemo(
+    () => appState.tasks.filter((task) => task.isMarked),
+    [appState.tasks]
+  );
+
+  const sortedUnassignedTasks = useMemo(() => sortByIndex(unassignedTasks), [unassignedTasks]);
+  const sortedColumns = useMemo(() => sortByIndex(appState.columns), [appState.columns]);
+  const sortedTasksWithColumn = useMemo(() => sortByIndex(tasksWithColumn), [tasksWithColumn]);
 
   return (
     <div className={styles.container}>
@@ -186,7 +204,7 @@ function App() {
           <CreateBox
             creationType={appState.createOption}
             onAddBtnClick={handleAddBtnClick}
-            onSelect={(value) => setAppState((prev) => ({ ...prev, createOption: value }))}
+            onSelect={handleCreateOptionChange}
           />
 
           <SearchBox
@@ -202,7 +220,7 @@ function App() {
         {!isStateEmpty && (
           <>
             <TasksList
-              tasks={sortByIndex(unassignedTasks)}
+              tasks={sortedUnassignedTasks}
               onTaskUpdate={handleUpdateTask}
               onTaskDelete={handleDeleteTask}
               searchValue={searchValue}
@@ -212,8 +230,8 @@ function App() {
 
         {!!appState.columns && (
           <ColumnList
-            columns={sortByIndex(appState.columns)}
-            tasks={sortByIndex(tasksWithColumn)}
+            columns={sortedColumns}
+            tasks={sortedTasksWithColumn}
             onTaskUpdate={handleUpdateTask}
             onColumnDelete={handleDeleteColumn}
             onTaskDelete={handleDeleteTask}

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import { Task } from '@components';
 import type { Task as TaskType } from '@types';
 import { useDraggableDropTarget } from '@hooks/useDraggableDropTarget.ts';
@@ -12,7 +12,7 @@ interface Props {
   searchValue: string;
 }
 
-export const TasksList = ({ tasks, onTaskUpdate, onTaskDelete, searchValue }: Props) => {
+export const TasksList = memo(({ tasks, onTaskUpdate, onTaskDelete, searchValue }: Props) => {
   const ref = useRef<HTMLDivElement | null>(null);
   useDraggableDropTarget(ref, 'tasks-list', undefined, { draggable: false, droppable: true });
 
@@ -40,4 +40,4 @@ export const TasksList = ({ tasks, onTaskUpdate, onTaskDelete, searchValue }: Pr
       )}
     </div>
   );
-};
+});

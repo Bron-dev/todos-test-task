@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { Button, OptionSelector, Input, RoundedContainer } from '@components';
 import type { CreateOption } from '@types';
 import { CREATE_OPTIONS } from '@constants';
@@ -11,28 +11,35 @@ interface CreateBoxProps {
   onSelect: (type: CreateOption) => void; // зміна типу
 }
 
-export const CreateBox = ({ creationType, onAddBtnClick, onSelect }: CreateBoxProps) => {
+export const CreateBox = memo(({ creationType, onAddBtnClick, onSelect }: CreateBoxProps) => {
   const [title, setTitle] = useState('');
 
-  const handleAddClick = () => {
+  const handleAddClick = useCallback(() => {
     if (!title.trim()) return;
     onAddBtnClick(creationType, title);
     setTitle('');
-  };
+  }, [title, creationType, onAddBtnClick]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddClick();
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddClick();
+      }
+    },
+    [handleAddClick]
+  );
+
+  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  }, []);
 
   return (
     <RoundedContainer>
       <div className={styles.boxContainer}>
         <Input
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleTitleChange}
           placeholder={`Enter ${creationType}'s title`}
           onKeyDown={handleKeyDown}
         />
@@ -43,4 +50,4 @@ export const CreateBox = ({ creationType, onAddBtnClick, onSelect }: CreateBoxPr
       </Button>
     </RoundedContainer>
   );
-};
+});

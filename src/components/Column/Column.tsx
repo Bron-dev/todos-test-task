@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import { Checkbox } from '@components';
 import { useDraggableDropTarget } from '@hooks/useDraggableDropTarget.ts';
 import DeleteIcon from '@icons/delete.svg?react';
@@ -14,7 +14,7 @@ interface ColumnProps {
   onCheckMarkToggle: () => void;
 }
 
-export const Column = ({
+export const Column = memo(({
   columnId,
   title,
   children,
@@ -25,7 +25,11 @@ export const Column = ({
   const ref = useRef<HTMLDivElement | null>(null);
   useDraggableDropTarget(ref, 'column', columnId);
 
-  const hasTasks = React.Children.count(children) > 0;
+  const hasTasks = useMemo(() => React.Children.count(children) > 0, [children]);
+
+  const handleDeleteClick = useCallback(() => {
+    onColumnDelete(columnId);
+  }, [columnId, onColumnDelete]);
 
   return (
     <div ref={ref} className={styles.column}>
@@ -34,7 +38,7 @@ export const Column = ({
         <h3 className={styles.column_header__title}>{title}</h3>
         <DeleteIcon
           className={styles.column_header__icon}
-          onClick={() => onColumnDelete(columnId)}
+          onClick={handleDeleteClick}
         />
       </div>
 
@@ -43,4 +47,4 @@ export const Column = ({
       </div>
     </div>
   );
-};
+});

@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction } from 'react';
+import { memo, useCallback, type Dispatch, type SetStateAction } from 'react';
 import { RoundedContainer, OptionSelector, Input } from '@components';
 import { FILTER_OPTIONS } from '@constants';
 import type { AppState, FilterType } from '@types';
@@ -12,24 +12,38 @@ interface SearchBoxProps {
   setSearchValue: Dispatch<SetStateAction<string>>;
 }
 
-export const SearchBox = ({
+export const SearchBox = memo(({
   setAppState,
   filterValue,
   searchValue,
   setSearchValue,
 }: SearchBoxProps) => {
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchValue(e.target.value);
+    },
+    [setSearchValue]
+  );
+
+  const handleFilterChange = useCallback(
+    (value: FilterType) => {
+      setAppState((prev) => ({ ...prev, filter: value }));
+    },
+    [setAppState]
+  );
+
   return (
     <RoundedContainer className={styles.searchBox}>
       <Input
         placeholder="Search tasks"
         value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
+        onChange={handleSearchChange}
       />
       <OptionSelector
         options={FILTER_OPTIONS}
-        onSelect={(value) => setAppState((prev) => ({ ...prev, filter: value }))}
+        onSelect={handleFilterChange}
         value={filterValue}
       />
     </RoundedContainer>
   );
-};
+});

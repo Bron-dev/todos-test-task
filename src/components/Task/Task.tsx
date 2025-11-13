@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { Input, Checkbox, RoundedContainer, HighlightedText, Switch } from '@components';
 import type { Task as TaskType } from '@types';
@@ -15,30 +15,44 @@ interface TaskProps {
   searchValue: string;
 }
 
-export const Task = ({ task, onUpdate, onTaskDelete, searchValue }: TaskProps) => {
+export const Task = memo(({ task, onUpdate, onTaskDelete, searchValue }: TaskProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [text, setText] = useState(task.text);
   const [isEditing, setIsEditing] = useState(false);
   useDraggableDropTarget(ref, 'task', task.id);
 
-  const toggleCheckbox = () => {
+  useEffect(() => {
+    if (!isEditing) {
+      setText(task.text);
+    }
+  }, [task.text, isEditing]);
+
+  const toggleCheckbox = useCallback(() => {
     onUpdate({ ...task, isMarked: !task.isMarked });
-  };
+  }, [task, onUpdate]);
 
-  const toggleSwitch = () => {
+  const toggleSwitch = useCallback(() => {
     onUpdate({ ...task, isCompleted: !task.isCompleted });
-  };
+  }, [task, onUpdate]);
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
-  };
+  }, []);
 
-  const handleBlur = () => {
+  const handleBlur = useCallback(() => {
     setIsEditing(false);
     if (text.trim() !== task.text) {
       onUpdate({ ...task, text: text.trim() });
     }
-  };
+  }, [text, task, onUpdate]);
+
+  const handleEditClick = useCallback(() => {
+    setIsEditing(true);
+  }, []);
+
+  const handleDeleteClick = useCallback(() => {
+    onTaskDelete(task.id);
+  }, [task.id, onTaskDelete]);
 
   return (
     <RoundedContainer ref={ref} className={styles.task}>
@@ -60,9 +74,9 @@ export const Task = ({ task, onUpdate, onTaskDelete, searchValue }: TaskProps) =
 
       <div className={styles.task_cta}>
         <Switch checked={task.isCompleted} onChange={toggleSwitch} tooltip="Mark as done" />
-        <EditIcon onClick={() => setIsEditing(true)} className={styles.task_cta__edit} />
-        <DeleteIcon onClick={() => onTaskDelete(task.id)} className={styles.task_cta__icon} />
+        <EditIcon onClick={handleEditClick} className={styles.task_cta__edit} />
+        <DeleteIcon onClick={handleDeleteClick} className={styles.task_cta__icon} />
       </div>
     </RoundedContainer>
   );
-};
+});
