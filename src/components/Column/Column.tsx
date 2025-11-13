@@ -4,6 +4,7 @@ import {
   draggable,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Checkbox } from '@components';
+import DeleteIcon from '@icons/delete.svg?react';
 
 import styles from './Column.module.scss';
 
@@ -11,29 +12,38 @@ interface ColumnProps {
   columnId: number;
   title: string;
   children?: React.ReactNode;
-  isChosen: boolean;
+  isMarked: boolean;
+  onColumnDelete: (columnId: number) => void;
+  onCheckMarkToggle: () => void;
 }
 
-export const Column = ({ columnId, title, children, isChosen }: ColumnProps) => {
+export const Column = ({
+  columnId,
+  title,
+  children,
+  isMarked,
+  onColumnDelete,
+  onCheckMarkToggle,
+}: ColumnProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  const handleRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;
-    return dropTargetForElements({
-      element: ref.current,
-      getData: () => {
-        return { type: 'column', id: columnId };
-      },
-    });
-  }, [columnId]);
 
-  useEffect(() => {
-    if (!handleRef.current) return;
-    return draggable({
-      element: handleRef.current,
+    const dropCleanup = dropTargetForElements({
+      element: ref.current,
+      getData: () => ({ type: 'column', id: columnId }),
+    });
+
+    const dragCleanup = draggable({
+      element: ref.current,
       getInitialData: () => ({ type: 'column', id: columnId }),
     });
+
+    return () => {
+      dropCleanup?.();
+      dragCleanup?.();
+    };
   }, [columnId]);
 
   const hasTasks = React.Children.count(children) > 0;
@@ -41,8 +51,12 @@ export const Column = ({ columnId, title, children, isChosen }: ColumnProps) => 
   return (
     <div ref={ref} className={styles.column}>
       <div className={styles.column_header}>
-        <Checkbox checked={isChosen} onChange={() => console.log(columnId)} />
-        <h3 ref={handleRef}>{title}</h3>
+        <Checkbox checked={isMarked} onChange={onCheckMarkToggle} />
+        <h3>{title}</h3>
+        <DeleteIcon
+          className={styles.column_header__icon}
+          onClick={() => onColumnDelete(columnId)}
+        />
       </div>
 
       <div className={styles.column_children}>

@@ -4,18 +4,26 @@
 
 .column {
   min-height: 300px;
+  @include dashed-container;
+
 
   &_header {
-    @include flex-center;
+    @include flex-row-between;
     margin-bottom: 20px;
     border-bottom: 1px solid $color-secondary;
-    padding: 12px 0;
+    padding: 12px;
+    cursor: grab;
+
+    &__icon {
+      width: 24px;
+      height: 24px;
+      fill: $color-danger;
+      cursor: pointer;
+    }
   }
 
   &_children {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    @include flex-column-gap;
 
     &__noTasks {
       text-align: center;

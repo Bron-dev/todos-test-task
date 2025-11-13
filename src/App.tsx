@@ -1,19 +1,30 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 
-import { Header, EmptyBox, CreateBox, TasksList, ColumnList } from '@components';
+import {
+  Header,
+  EmptyBox,
+  CreateBox,
+  TasksList,
+  ColumnList,
+  DeleteSection,
+  SearchBox,
+} from '@components';
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { createColumn, createTask, moveTask, reorderColumn } from '@utils';
-import type { AppState, Task } from '@types';
+import { createColumn, createTask, deleteColumn, deleteTask } from '@utils';
+import { handleDrop } from '@utils/dragAndDrop.ts';
+import type { AppState, CreateOption, Task } from '@types';
 import { INITIAL_STATE } from '@constants';
 
 import styles from './App.module.scss';
 
 function App() {
   const [appState, setAppState] = useLocalStorage<AppState>('appState', INITIAL_STATE);
+  const [isDragging, setIsDragging] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   // --- handle create ---
-  const handleAddBtnClick = (type: 'column' | 'task', title: string) => {
+  const handleAddBtnClick = (type: CreateOption, title: string) => {
     if (!title.trim()) return;
 
     if (type === 'column') {
@@ -24,7 +35,7 @@ function App() {
     } else {
       setAppState({
         ...appState,
-        tasks: [...appState.tasks, createTask(title)],
+        tasks: [...appState.tasks, createTask(title, appState.tasks.length)],
       });
     }
   };
@@ -36,51 +47,56 @@ function App() {
     });
   };
 
+  const handleDeleteColumn = (columnId: number) => {
+    setAppState((prev) => deleteColumn(prev, columnId));
+  };
+
+  const handleDeleteTask = (taskId: number) => {
+    setAppState((prev) => deleteTask(prev, taskId));
+  };
+
+  const toggleColumnCheckmark = (columnId: number) => {
+    setAppState((prev) => {
+      const updatedColumns = prev.columns.map((col) =>
+        col.id === columnId ? { ...col, isMarked: !col.isMarked } : col
+      );
+
+      const column = updatedColumns.find((col) => col.id === columnId);
+      const newMarked = column?.isMarked ?? false;
+
+      const updatedTasks = prev.tasks.map((task) =>
+        task.columnId === columnId ? { ...task, isMarked: newMarked } : task
+      );
+
+      return { ...prev, columns: updatedColumns, tasks: updatedTasks };
+    });
+  };
+
   // --- handle drag logic ---
   useEffect(() => {
     const cleanup = monitorForElements({
+      onDragStart() {
+        setIsDragging(true);
+      },
       onDrop(payload) {
+        setIsDragging(false);
         try {
-          const source = (payload as any).source ?? (payload as any).drag ?? null;
-          const location = (payload as any).location ?? null;
+          const source = payload.source ?? null;
+          const location = payload.location ?? null;
           if (!source) return;
 
-          const srcData = source.data ?? source.payload ?? source.getData?.() ?? null;
+          const srcData = source.data ?? null;
           const dropTargets = location?.current?.dropTargets ?? [];
           const firstTarget = dropTargets[0] ?? null;
-          const targetData = firstTarget?.data ?? firstTarget?.getData?.() ?? null;
+          const targetData = firstTarget?.data ?? null;
 
-          // --- TASK ---
-          if (srcData?.type === 'task') {
-            const taskId = Number(srcData.id);
-
-            let newColumnId: number | undefined;
-            let newIndex: number | undefined;
-
-            if (targetData?.type === 'column') {
-              newColumnId = Number(targetData.id);
-              const tasksInColumn = appState.tasks
-                .filter((t) => t.columnId === newColumnId)
-                .sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
-              newIndex = tasksInColumn.length;
-            } else if (targetData?.type === 'task') {
-              const targetTask = appState.tasks.find((t) => t.id === Number(targetData.id));
-              newColumnId = targetTask?.columnId;
-              newIndex = targetTask?.index;
-            }
-
-            setAppState((prev) => moveTask(prev, taskId, newColumnId, newIndex));
-            return;
-          }
-
-          // --- COLUMN ---
-          if (srcData?.type === 'column' && targetData?.type === 'column') {
-            const fromId = Number(srcData.id);
-            const toId = Number(targetData.id);
-
-            setAppState((prev) => reorderColumn(prev, fromId, toId));
-            return;
-          }
+          setAppState((prev) =>
+            handleDrop(
+              prev,
+              srcData as { type: string; id: number },
+              targetData as { type: string; id?: number } | null
+            )
+          );
         } catch (err) {
           console.error('[dnd] onDrop error', err);
         }
@@ -90,29 +106,76 @@ function App() {
     return () => cleanup?.();
   }, []);
 
-  const unassignedTasks = appState.tasks.filter((t) => !t.columnId);
-  const tasksWithColumn = appState.tasks.filter((t) => !!t.columnId);
+  const filterType = appState.filter;
+
+  const tasksToShow = appState.tasks.filter((task) => {
+    if (filterType === 'completed' && !task.isCompleted) return false;
+    if (filterType === 'incomplete' && task.isCompleted) return false;
+
+    const query = searchValue.trim().toLowerCase();
+    if (!query) return true;
+
+    const text = task.text.toLowerCase();
+
+    let lastIndex = -1;
+    for (const char of query) {
+      const index = text.indexOf(char, lastIndex + 1);
+      if (index === -1) return false;
+      lastIndex = index;
+    }
+
+    return true;
+  });
+
+  const unassignedTasks = tasksToShow.filter((t) => !t.columnId);
+  const tasksWithColumn = tasksToShow.filter((t) => !!t.columnId);
   const isStateEmpty = appState.columns.length === 0 && appState.tasks.length === 0;
 
   return (
     <div className={styles.container}>
       <Header />
       <div className={styles.container__mainContent}>
-        <CreateBox onAddBtnClick={handleAddBtnClick} />
+        <div className={styles.actionBoxes}>
+          <CreateBox
+            creationType={appState.createOption}
+            onAddBtnClick={handleAddBtnClick}
+            onSelect={(value) => setAppState((prev) => ({ ...prev, createOption: value }))}
+          />
+
+          <SearchBox
+            setAppState={setAppState}
+            filterValue={appState.filter}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+          />
+        </div>
+
         {isStateEmpty && <EmptyBox />}
 
-        <TasksList
-          onTaskUpdate={handleUpdateTask}
-          tasks={unassignedTasks.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))}
-        />
+        {!isStateEmpty && (
+          <>
+            <TasksList
+              tasks={unassignedTasks.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))}
+              onTaskUpdate={handleUpdateTask}
+              onTaskDelete={handleDeleteTask}
+              searchValue={searchValue}
+            />
+          </>
+        )}
 
         {!!appState.columns && (
           <ColumnList
-            columns={appState.columns}
+            columns={appState.columns.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))}
             tasks={tasksWithColumn.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))}
             onTaskUpdate={handleUpdateTask}
+            onColumnDelete={handleDeleteColumn}
+            onTaskDelete={handleDeleteTask}
+            onCheckMarkToggle={toggleColumnCheckmark}
+            searchValue={searchValue}
           />
         )}
+
+        <DeleteSection isVisible={isDragging} />
       </div>
     </div>
   );

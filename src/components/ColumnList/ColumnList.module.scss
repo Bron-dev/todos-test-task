@@ -1,3 +1,5 @@
+@use '@styles/mixins' as *;
+
 .list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

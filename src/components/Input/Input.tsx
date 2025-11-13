@@ -1,8 +1,7 @@
 import React from 'react';
-
 import styles from './Input.module.scss';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   size?: 'small' | 'medium' | 'large';
   error?: boolean;
 }
