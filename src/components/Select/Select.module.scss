@@ -1,3 +1,5 @@
+@use '@styles/variables' as *;
+
 .selectContainer {
   position: relative;
   width: 100%;
@@ -39,6 +41,18 @@
   overflow: hidden;
   z-index: 40;
   animation: fadeIn 0.15s ease;
+
+  @media (max-width: $breakpoint-tablet) {
+    top: auto;
+    bottom: calc(100% + 4px);
+    animation: fadeInUp 0.15s ease;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  &.openUpward {
+
+  }
 }
 
 .option {
@@ -55,5 +69,10 @@
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }

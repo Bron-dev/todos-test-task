@@ -25,6 +25,8 @@ export type FilterType = 'all' | 'completed' | 'incomplete';
 
 export type CreateOption = 'column' | 'task';
 
+export type DragItemType = CreateOption | 'tasks-list' | 'delete-zone';
+
 export interface Option<T> {
   label: string;
   value: T;

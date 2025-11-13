@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Column, Task } from '@components';
 import type { Column as ColumnType, Task as TaskType } from '@types';
 
@@ -22,10 +23,21 @@ export const ColumnList = ({
   onCheckMarkToggle,
   searchValue,
 }: ColumnListProps) => {
+  const tasksByColumn = useMemo(() => {
+    const map = new Map<number, TaskType[]>();
+    tasks.forEach((task) => {
+      if (task.columnId) {
+        const existing = map.get(task.columnId) || [];
+        map.set(task.columnId, [...existing, task]);
+      }
+    });
+    return map;
+  }, [tasks]);
+
   return (
     <ul className={styles.list}>
       {columns.map((column) => {
-        const columnTasks = tasks.filter((t) => t.columnId === column.id);
+        const columnTasks = tasksByColumn.get(column.id) || [];
         return (
           <li key={column.id}>
             <Column

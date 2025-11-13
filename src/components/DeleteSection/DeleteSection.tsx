@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { useRef } from 'react';
+import { useDraggableDropTarget } from '@hooks/useDraggableDropTarget.ts';
 
 import DeleteIcon from '@icons/delete.svg?react';
 
@@ -11,16 +11,7 @@ interface DeleteSectionProps {
 
 export const DeleteSection = ({ isVisible }: DeleteSectionProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    return dropTargetForElements({
-      element: ref.current,
-      getData: () => {
-        return { type: 'delete-zone' };
-      },
-    });
-  }, []);
+  useDraggableDropTarget(ref, 'delete-zone', undefined, { draggable: false, droppable: true });
 
   return (
     <div ref={ref} className={`${styles.deleteSection} ${isVisible ? styles.show : ''}`}>

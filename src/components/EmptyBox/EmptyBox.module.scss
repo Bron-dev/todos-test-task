@@ -1,7 +1,20 @@
 @use '@styles/mixins' as *;
+@use '@styles/variables' as *;
 
 .emptyBox {
   min-width: 400px;
   min-height: 400px;
   @include flex-center;
+  text-align: center;
+
+  @media (max-width: $breakpoint-tablet) {
+    min-width: 300px;
+    min-height: 300px;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    min-width: 100%;
+    min-height: 250px;
+    padding: 1rem;
+  }
 }

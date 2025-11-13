@@ -48,3 +48,7 @@ export const deleteColumn = (state: AppState, columnId: number): AppState => {
     tasks: [...reindexedAssigned, ...reindexedUnassigned],
   };
 };
+
+export const sortByIndex = <T extends { index?: number }>(items: T[]): T[] => {
+  return [...items].sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
+};

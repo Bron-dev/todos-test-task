@@ -17,15 +17,34 @@
   border-radius: 16px 16px 0 0;
   border-top: 1px dashed $color-secondary;
 
+  @media (max-width: $breakpoint-tablet) {
+    padding: 16px 0;
+    border-radius: 12px 12px 0 0;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    padding: 12px 0;
+    border-radius: 8px 8px 0 0;
+  }
+
   &_icon {
     fill: $color-background;
     height: 40px;
     width: 40px;
+
+    @media (max-width: $breakpoint-mobile) {
+      height: 32px;
+      width: 32px;
+    }
   }
 
   &_text {
     font-weight: bold;
     color: $color-background;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: 0.9rem;
+    }
   }
 }
 

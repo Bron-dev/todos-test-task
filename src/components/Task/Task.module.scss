@@ -5,14 +5,31 @@
   @include flex-center;
   gap: 8px;
   padding: 0 16px;
+  align-items: center;
+
+  @media (max-width: $breakpoint-mobile) {
+    padding: 0 12px;
+    gap: 6px;
+  }
 
   &_text {
+    flex: 1 1 auto;
+    min-width: 0;
     width: 100%;
     text-align: left;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    padding-left: 0.75rem;
+    height: auto;
+    min-height: 40px;
+    display: block;
+    line-height: 1.4;
+    padding: 0.75rem 0;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+
+    @media (max-width: $breakpoint-mobile) {
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+    }
   }
 
   &_input {
@@ -21,21 +38,38 @@
   }
 
   &_cta {
-    @include flex-center;
+    display: flex;
+    align-items: center;
     gap: 1rem;
+    flex-shrink: 0; /* ✅ icons don't shrink */
+    margin-top: 6px; /* visually align with top of text */
+
+    @media (max-width: $breakpoint-mobile) {
+      gap: 0.5rem;
+    }
 
     &__icon {
       width: 24px;
       height: 24px;
       fill: $color-danger;
       cursor: pointer;
+
+      @media (max-width: $breakpoint-mobile) {
+        width: 20px;
+        height: 20px;
+      }
     }
 
     &__edit {
       width: 18px;
       height: 18px;
-      fill:$color-primary ;
+      fill: $color-primary;
       cursor: pointer;
+
+      @media (max-width: $breakpoint-mobile) {
+        width: 16px;
+        height: 16px;
+      }
     }
   }
 }

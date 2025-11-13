@@ -1,4 +1,24 @@
+@use '@styles/variables' as *;
+
 .header {
   text-align: center;
   padding-block: 20px;
+
+  @media (max-width: $breakpoint-tablet) {
+    padding-block: 16px;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    padding-block: 12px;
+  }
+
+  .title {
+    @media (max-width: $breakpoint-tablet) {
+      font-size: 1.5rem;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: 1.25rem;
+    }
+  }
 }
