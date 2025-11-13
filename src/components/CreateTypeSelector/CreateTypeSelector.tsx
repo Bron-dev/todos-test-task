@@ -26,13 +26,13 @@ export const CreateTypeSelector = ({
         className={`${styles.option} ${selected === 'column' ? styles.active : ''}`}
         onClick={() => handleSelect('column')}
       >
-        📁 Column
+        Column
       </button>
       <button
         className={`${styles.option} ${selected === 'task' ? styles.active : ''}`}
         onClick={() => handleSelect('task')}
       >
-        ✅ Task
+        Task
       </button>
     </div>
   );

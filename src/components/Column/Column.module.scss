@@ -1,3 +1,24 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+
+
 .column {
   min-height: 300px;
+
+  &_header {
+    @include flex-center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid $color-secondary;
+    padding: 12px 0;
+  }
+
+  &_children {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    &__noTasks {
+      text-align: center;
+    }
+  }
 }

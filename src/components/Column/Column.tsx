@@ -3,16 +3,18 @@ import {
   dropTargetForElements,
   draggable,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { Checkbox } from '@components';
 
 import styles from './Column.module.scss';
 
-interface Props {
+interface ColumnProps {
   columnId: number;
   title: string;
   children?: React.ReactNode;
+  isChosen: boolean;
 }
 
-export const Column = ({ columnId, title, children }: Props) => {
+export const Column = ({ columnId, title, children, isChosen }: ColumnProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const handleRef = useRef<HTMLDivElement | null>(null);
 
@@ -21,7 +23,6 @@ export const Column = ({ columnId, title, children }: Props) => {
     return dropTargetForElements({
       element: ref.current,
       getData: () => {
-        console.log('[dnd] column registered as drop target', columnId);
         return { type: 'column', id: columnId };
       },
     });
@@ -35,12 +36,18 @@ export const Column = ({ columnId, title, children }: Props) => {
     });
   }, [columnId]);
 
+  const hasTasks = React.Children.count(children) > 0;
+
   return (
     <div ref={ref} className={styles.column}>
-      <div ref={handleRef} className={styles.header}>
-        {title}
+      <div className={styles.column_header}>
+        <Checkbox checked={isChosen} onChange={() => console.log(columnId)} />
+        <h3 ref={handleRef}>{title}</h3>
       </div>
-      {children}
+
+      <div className={styles.column_children}>
+        {hasTasks ? children : <p className={styles.column_children__noTasks}>No tasks yet</p>}
+      </div>
     </div>
   );
 };

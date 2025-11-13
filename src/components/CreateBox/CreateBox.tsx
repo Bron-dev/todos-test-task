@@ -26,8 +26,10 @@ export const CreateBox = ({ onAddBtnClick }: CreateBoxProps) => {
           placeholder={`Enter ${type} name`}
         />
         <CreateTypeSelector onSelect={setType} defaultValue={type} />
-        <Button onClick={handleAddClick}>Add</Button>
       </div>
+      <Button onClick={handleAddClick} className={styles.addBtn}>
+        Create
+      </Button>
     </RoundedContainer>
   );
 };

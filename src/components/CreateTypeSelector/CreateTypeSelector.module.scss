@@ -4,8 +4,7 @@
 
 .wrapper {
   @include flex-center;
-  gap: 0.5rem;
-  background: #f6f6f6;
+  gap: 4px;
   padding: 0.5rem;
   border-radius: 8px;
 }
@@ -14,7 +13,7 @@
   padding: 0.5rem 1rem;
   border-radius: 8px;
   border: 1px solid transparent;
-  background-color: #fff;
+  background-color: $color-secondary;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;

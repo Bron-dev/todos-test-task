@@ -1,6 +1,13 @@
 @use '@styles/mixins' as *;
+@use '@styles/variables' as *;
+
 
 .task {
   @include flex-center;
   gap: 8px;
+
+  &__input {
+    border: none;
+    background-color: inherit;
+  }
 }

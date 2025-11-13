@@ -1,30 +1,53 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { Input, Checkbox } from '@components';
+
+import { Input, Checkbox, RoundedContainer } from '@components';
+import type { Task as TaskType } from '@types';
 
 import styles from './Task.module.scss';
 
 interface TaskProps {
-  id: number;
-  text: string;
-  isCompleted: boolean;
+  task: TaskType;
+  onUpdate: (updatedTask: TaskType) => void;
 }
 
-export const Task = ({ id, text, isCompleted }: TaskProps) => {
+export const Task = ({ task, onUpdate }: TaskProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [text, setText] = useState(task.text);
+  const [isCompleted, setIsCompleted] = useState(task.isCompleted);
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCompleted(e.target.checked);
+    onUpdate({ ...task, isCompleted: e.target.checked });
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+  };
+
+  const handleBlur = () => {
+    if (text.trim() !== task.text) {
+      onUpdate({ ...task, text: text.trim() });
+    }
+  };
 
   useEffect(() => {
     if (!ref.current) return;
     return draggable({
       element: ref.current,
-      getInitialData: () => ({ type: 'task', id }), // мінімальний payload
+      getInitialData: () => ({ type: 'task', id: task.id }), // мінімальний payload
     });
-  }, [id]);
+  }, [task.id]);
 
   return (
-    <div ref={ref} className={styles.task}>
-      <Input value={text} />
-      <Checkbox checked={isCompleted} onChange={() => {}} />
-    </div>
+    <RoundedContainer ref={ref} className={styles.task}>
+      <Input
+        value={text}
+        onChange={handleTextChange}
+        onBlur={handleBlur}
+        className={styles.task__input}
+      />
+      <Checkbox checked={isCompleted} onChange={handleCheckboxChange} />
+    </RoundedContainer>
   );
 };

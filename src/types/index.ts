@@ -10,6 +10,7 @@ export interface Column {
   id: number;
   title: string;
   index: number;
+  isChosen: boolean;
 }
 
 export interface AppState {
