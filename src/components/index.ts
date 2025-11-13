@@ -14,3 +14,5 @@ export { DeleteSection } from './DeleteSection';
 export { SearchBox } from './SearchBox';
 export { HighlightedText } from './HighlightedText';
 export { Switch } from './Switch';
+export { BulkActionSidebar } from './BulkActionSidebar';
+export { Select } from './Select';

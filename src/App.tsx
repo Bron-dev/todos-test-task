@@ -9,6 +9,7 @@ import {
   ColumnList,
   DeleteSection,
   SearchBox,
+  BulkActionSidebar,
 } from '@components';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { createColumn, createTask, deleteColumn, deleteTask } from '@utils';
@@ -23,7 +24,6 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
-  // --- handle create ---
   const handleAddBtnClick = (type: CreateOption, title: string) => {
     if (!title.trim()) return;
 
@@ -70,6 +70,42 @@ function App() {
 
       return { ...prev, columns: updatedColumns, tasks: updatedTasks };
     });
+  };
+
+  const handleBulkDelete = () => {
+    setAppState((prev) => ({
+      ...prev,
+      tasks: prev.tasks.filter((task) => !task.isMarked),
+    }));
+  };
+
+  const handleBulkComplete = () => {
+    setAppState((prev) => ({
+      ...prev,
+      tasks: prev.tasks.map((task) =>
+        task.isMarked ? { ...task, isCompleted: true, isMarked: false } : task
+      ),
+    }));
+  };
+
+  const handleBulkIncomplete = () => {
+    setAppState((prev) => ({
+      ...prev,
+      tasks: prev.tasks.map((task) =>
+        task.isMarked ? { ...task, isCompleted: false, isMarked: false } : task
+      ),
+    }));
+  };
+
+  const handleBulkMove = (targetColumnId: string) => {
+    if (!targetColumnId) return;
+    const targetId = parseInt(targetColumnId, 10);
+    setAppState((prev) => ({
+      ...prev,
+      tasks: prev.tasks.map((task) =>
+        task.isMarked ? { ...task, columnId: targetId, isMarked: false } : task
+      ),
+    }));
   };
 
   // --- handle drag logic ---
@@ -130,10 +166,21 @@ function App() {
   const unassignedTasks = tasksToShow.filter((t) => !t.columnId);
   const tasksWithColumn = tasksToShow.filter((t) => !!t.columnId);
   const isStateEmpty = appState.columns.length === 0 && appState.tasks.length === 0;
+  const selectedTasks = appState.tasks.filter((task) => task.isMarked);
 
   return (
     <div className={styles.container}>
       <Header />
+
+      <BulkActionSidebar
+        selectedCount={selectedTasks.length}
+        onDelete={handleBulkDelete}
+        onMarkComplete={handleBulkComplete}
+        onMarkIncomplete={handleBulkIncomplete}
+        onMove={handleBulkMove}
+        columns={appState.columns}
+      />
+
       <div className={styles.container__mainContent}>
         <div className={styles.actionBoxes}>
           <CreateBox

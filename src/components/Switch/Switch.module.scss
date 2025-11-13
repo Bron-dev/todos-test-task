@@ -12,7 +12,7 @@
   transition: background-color 0.2s;
 
   &.checked {
-    background-color: $color-switch;
+    background-color: $color-green;
 
     .knob {
       transform: translateX(24px);
