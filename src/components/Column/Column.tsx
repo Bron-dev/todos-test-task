@@ -52,7 +52,7 @@ export const Column = ({
     <div ref={ref} className={styles.column}>
       <div className={styles.column_header}>
         <Checkbox checked={isMarked} onChange={onCheckMarkToggle} />
-        <h3>{title}</h3>
+        <h3 className={styles.column_header__title}>{title}</h3>
         <DeleteIcon
           className={styles.column_header__icon}
           onClick={() => onColumnDelete(columnId)}

@@ -36,11 +36,7 @@ export const CreateBox = ({ creationType, onAddBtnClick, onSelect }: CreateBoxPr
           placeholder={`Enter ${creationType}'s title`}
           onKeyDown={handleKeyDown}
         />
-        <OptionSelector<CreateOption>
-          options={CREATE_OPTIONS}
-          value={creationType}
-          onSelect={onSelect}
-        />
+        <OptionSelector options={CREATE_OPTIONS} value={creationType} onSelect={onSelect} />
       </div>
       <Button onClick={handleAddClick} className={styles.addBtn}>
         Create

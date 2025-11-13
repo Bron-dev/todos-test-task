@@ -4,9 +4,24 @@
 .boxContainer {
   @include flex-center;
   gap: 8px;
+
+  @media (max-width: $breakpoint-mobile) {
+    gap: 4px;
+    flex-wrap: wrap;
+  }
 }
 
 .addBtn {
   margin: 20px auto 0 auto;
-  width: 360px;
+  width: 100%;
+
+  @media (max-width: $breakpoint-tablet) {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin: 16px auto 0 auto;
+    width: 100%;
+  }
 }
