@@ -1,10 +1,10 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo } from 'react';
 
 import { Input, Checkbox, RoundedContainer, HighlightedText, Switch } from '@components';
 import type { Task as TaskType } from '@types';
 import DeleteIcon from '@icons/delete.svg?react';
 import EditIcon from '@icons/edit.svg?react';
-import { useDraggableDropTarget } from '@hooks/useDraggableDropTarget.ts';
+import { useTask } from './useTask.ts';
 
 import styles from './Task.module.scss';
 
@@ -16,43 +16,17 @@ interface TaskProps {
 }
 
 export const Task = memo(({ task, onUpdate, onTaskDelete, searchValue }: TaskProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [text, setText] = useState(task.text);
-  const [isEditing, setIsEditing] = useState(false);
-  useDraggableDropTarget(ref, 'task', task.id);
-
-  useEffect(() => {
-    if (!isEditing) {
-      setText(task.text);
-    }
-  }, [task.text, isEditing]);
-
-  const toggleCheckbox = useCallback(() => {
-    onUpdate({ ...task, isMarked: !task.isMarked });
-  }, [task, onUpdate]);
-
-  const toggleSwitch = useCallback(() => {
-    onUpdate({ ...task, isCompleted: !task.isCompleted });
-  }, [task, onUpdate]);
-
-  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
-  }, []);
-
-  const handleBlur = useCallback(() => {
-    setIsEditing(false);
-    if (text.trim() !== task.text) {
-      onUpdate({ ...task, text: text.trim() });
-    }
-  }, [text, task, onUpdate]);
-
-  const handleEditClick = useCallback(() => {
-    setIsEditing(true);
-  }, []);
-
-  const handleDeleteClick = useCallback(() => {
-    onTaskDelete(task.id);
-  }, [task.id, onTaskDelete]);
+  const {
+    ref,
+    text,
+    isEditing,
+    toggleCheckbox,
+    toggleSwitch,
+    handleTextChange,
+    handleBlur,
+    handleEditClick,
+    handleDeleteClick,
+  } = useTask({ task, onUpdate, onTaskDelete });
 
   return (
     <RoundedContainer ref={ref} className={styles.task}>

@@ -16,3 +16,4 @@ export { HighlightedText } from './HighlightedText';
 export { Switch } from './Switch';
 export { BulkActionSidebar } from './BulkActionSidebar';
 export { Select } from './Select';
+export { App } from './App';
