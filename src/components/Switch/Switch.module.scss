@@ -1,0 +1,66 @@
+@use '@styles/variables' as *;
+
+.switch {
+  width: 48px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: #ccc;
+  position: relative;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s;
+
+  &.checked {
+    background-color: $color-green;
+
+    .knob {
+      transform: translateX(24px);
+    }
+  }
+
+  .knob {
+    width: 20px;
+    height: 20px;
+    background: $color-background;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+  }
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-block;
+
+  .switch {
+    display: block;
+  }
+
+  .tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  &:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+

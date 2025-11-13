@@ -32,7 +32,9 @@
       "@styles/*": ["styles/*"],
       "@types": ["types/index"],
       "@constants": ["constants/index"],
-      "@utils": ["utils/index"]
+      "@utils/*": ["utils/*"],
+      "@utils": ["utils/index"],
+      "@icons/*": ["assets/icons/*"]
     }
   },
   "include": ["src"]

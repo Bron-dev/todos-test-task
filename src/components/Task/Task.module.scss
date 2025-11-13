@@ -1,13 +1,45 @@
 @use '@styles/mixins' as *;
 @use '@styles/variables' as *;
 
-
 .task {
   @include flex-center;
   gap: 8px;
+  padding: 0 16px;
 
-  &__input {
+  &_text {
+    width: 100%;
+    text-align: left;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding-left: 0.75rem;
+  }
+
+  &_input {
     border: none;
     background-color: inherit;
   }
+
+  &_cta {
+    @include flex-center;
+    gap: 1rem;
+
+    &__icon {
+      width: 24px;
+      height: 24px;
+      fill: $color-danger;
+      cursor: pointer;
+    }
+
+    &__edit {
+      width: 18px;
+      height: 18px;
+      fill:$color-primary ;
+      cursor: pointer;
+    }
+  }
+}
+
+.completed {
+  text-decoration: line-through;
 }

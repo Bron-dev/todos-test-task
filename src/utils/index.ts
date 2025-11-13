@@ -4,77 +4,47 @@ export const createColumn = (title: string, index: number): Column => ({
   id: Date.now(),
   title,
   index,
+  isMarked: false,
 });
 
-export const createTask = (text: string): Task => ({
+export const createTask = (text: string, index: number): Task => ({
   id: Date.now(),
   text,
+  index,
   isCompleted: false,
+  isMarked: false,
 });
 
-export const reorder = <T extends { index: number }>(
-  list: T[],
-  startIndex: number,
-  endIndex: number
-): T[] => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
+export const deleteTask = (state: AppState, taskId: number) => {
+  const updatedTasks = state.tasks
+    .filter((task) => task.id !== taskId)
+    .map((item, i) => ({ ...item, index: i }));
 
-  result.splice(endIndex, 0, removed);
-
-  return result.map((item, index) => ({ ...item, index }));
+  return {
+    ...state,
+    tasks: updatedTasks,
+  };
 };
 
-export const insertItemAt = <T extends { index: number }>(
-  list: T[],
-  index: number,
-  newItem: T
-): T[] => {
-  const updatedItems = list.map((item) =>
-    item.index >= index ? { ...item, index: item.index + 1 } : item
-  );
+export const deleteColumn = (state: AppState, columnId: number): AppState => {
+  const updatedColumns = state.columns.filter((column) => column.id !== columnId);
 
-  updatedItems.splice(index, 0, newItem);
-
-  return updatedItems;
-};
-
-export const moveTask = (
-  prev: AppState,
-  taskId: number,
-  newColumnId?: number,
-  newIndex?: number
-): AppState => {
-  const movingTask = prev.tasks.find((t) => t.id === taskId);
-  if (!movingTask) return prev;
-
-  const otherTasks = prev.tasks.filter((t) => t.id !== taskId);
-  const tasksInTarget = otherTasks
-    .filter((t) => t.columnId === newColumnId)
-    .sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
-
-  const index = newIndex ?? tasksInTarget.length;
-  const updatedTasksInTarget = insertItemAt(tasksInTarget, index, {
-    ...movingTask,
-    columnId: newColumnId,
-    index,
+  const updatedTasks = state.tasks.map((task) => {
+    if (task.columnId === columnId) {
+      return { ...task, columnId: undefined };
+    }
+    return task;
   });
 
-  const updatedTasks = [
-    ...otherTasks.filter((t) => t.columnId !== newColumnId),
-    ...updatedTasksInTarget,
-  ];
+  const unassignedTasks = updatedTasks.filter((t) => !t.columnId);
+  const assignedTasks = updatedTasks.filter((t) => t.columnId);
 
-  return { ...prev, tasks: updatedTasks };
-};
+  const reindexedUnassigned = unassignedTasks.map((t, i) => ({ ...t, index: i }));
+  const reindexedAssigned = assignedTasks.map((t, i) => ({ ...t, index: i }));
 
-export const reorderColumn = (prev: AppState, fromId: number, toId: number): AppState => {
-  const cols = [...prev.columns].sort((a, b) => a.index - b.index);
-  const fromIndex = cols.findIndex((c) => c.id === fromId);
-  const toIndex = cols.findIndex((c) => c.id === toId);
-
-  if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return prev;
-
-  const updatedCols = reorder(cols, fromIndex, toIndex);
-  return { ...prev, columns: updatedCols };
+  return {
+    ...state,
+    columns: updatedColumns,
+    tasks: [...reindexedAssigned, ...reindexedUnassigned],
+  };
 };

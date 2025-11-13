@@ -1,0 +1,59 @@
+.selectContainer {
+  position: relative;
+  width: 100%;
+}
+
+.selectButton {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: #f4f6f8;
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:hover {
+    background: #e9ecef;
+  }
+}
+
+.arrow {
+  transition: transform 0.2s ease;
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  overflow: hidden;
+  z-index: 40;
+  animation: fadeIn 0.15s ease;
+}
+
+.option {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  &:hover {
+    background: #f0f0f0;
+  }
+  &.active {
+    background: #e6f0ff;
+    font-weight: 500;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
