@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { useRef } from 'react';
 import { Task } from '@components';
 import type { Task as TaskType } from '@types';
+import { useDraggableDropTarget } from '@hooks/useDraggableDropTarget.ts';
 
 import styles from './TasksList.module.scss';
 
@@ -14,16 +14,7 @@ interface Props {
 
 export const TasksList = ({ tasks, onTaskUpdate, onTaskDelete, searchValue }: Props) => {
   const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    return dropTargetForElements({
-      element: ref.current,
-      getData: () => {
-        return { type: 'tasks-list' };
-      },
-    });
-  }, []);
+  useDraggableDropTarget(ref, 'tasks-list', undefined, { draggable: false, droppable: true });
 
   return (
     <div className={styles.list} ref={ref}>

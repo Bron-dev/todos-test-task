@@ -1,13 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  draggable,
-  dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import React, { useRef, useState } from 'react';
 
 import { Input, Checkbox, RoundedContainer, HighlightedText, Switch } from '@components';
 import type { Task as TaskType } from '@types';
 import DeleteIcon from '@icons/delete.svg?react';
 import EditIcon from '@icons/edit.svg?react';
+import { useDraggableDropTarget } from '@hooks/useDraggableDropTarget.ts';
 
 import styles from './Task.module.scss';
 
@@ -22,6 +19,7 @@ export const Task = ({ task, onUpdate, onTaskDelete, searchValue }: TaskProps) =
   const ref = useRef<HTMLDivElement>(null);
   const [text, setText] = useState(task.text);
   const [isEditing, setIsEditing] = useState(false);
+  useDraggableDropTarget(ref, 'task', task.id);
 
   const toggleCheckbox = () => {
     onUpdate({ ...task, isMarked: !task.isMarked });
@@ -41,25 +39,6 @@ export const Task = ({ task, onUpdate, onTaskDelete, searchValue }: TaskProps) =
       onUpdate({ ...task, text: text.trim() });
     }
   };
-
-  useEffect(() => {
-    if (!ref.current) return;
-
-    const dropCleanup = dropTargetForElements({
-      element: ref.current,
-      getData: () => ({ type: 'task', id: task.id }),
-    });
-
-    const dragCleanup = draggable({
-      element: ref.current,
-      getInitialData: () => ({ type: 'task', id: task.id }),
-    });
-
-    return () => {
-      dropCleanup?.();
-      dragCleanup?.();
-    };
-  }, [task.id]);
 
   return (
     <RoundedContainer ref={ref} className={styles.task}>

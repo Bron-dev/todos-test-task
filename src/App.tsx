@@ -12,7 +12,7 @@ import {
   BulkActionSidebar,
 } from '@components';
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { createColumn, createTask, deleteColumn, deleteTask } from '@utils';
+import { createColumn, createTask, deleteColumn, deleteTask, sortByIndex } from '@utils';
 import { handleDrop } from '@utils/dragAndDrop.ts';
 import type { AppState, CreateOption, Task } from '@types';
 import { INITIAL_STATE } from '@constants';
@@ -202,7 +202,7 @@ function App() {
         {!isStateEmpty && (
           <>
             <TasksList
-              tasks={unassignedTasks.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))}
+              tasks={sortByIndex(unassignedTasks)}
               onTaskUpdate={handleUpdateTask}
               onTaskDelete={handleDeleteTask}
               searchValue={searchValue}
@@ -212,8 +212,8 @@ function App() {
 
         {!!appState.columns && (
           <ColumnList
-            columns={appState.columns.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))}
-            tasks={tasksWithColumn.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))}
+            columns={sortByIndex(appState.columns)}
+            tasks={sortByIndex(tasksWithColumn)}
             onTaskUpdate={handleUpdateTask}
             onColumnDelete={handleDeleteColumn}
             onTaskDelete={handleDeleteTask}
